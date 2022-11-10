@@ -26,21 +26,21 @@ def is_connected_to_wifi():
 def connect_to_wifi(ssid, password, timeout_seconds=30):
   import network, time
 
+  wlan = network.WLAN(network.STA_IF)
+  wlan.active(True)    
+  wlan.connect(ssid, password)
+  start = time.ticks_ms()
+  status = wlan.status()
+  
   statuses = {
     network.STAT_IDLE: "idle",
     network.STAT_CONNECTING: "connecting",
     network.STAT_WRONG_PASSWORD: "wrong password",
     network.STAT_NO_AP_FOUND: "access point not found",
     network.STAT_CONNECT_FAIL: "connection failed",
-    network.STAT_GOT_IP: "got ip address"
+    network.STAT_GOT_IP: 'got ip address' + wlan.ifconfig()[0]
   }
-
-  wlan = network.WLAN(network.STA_IF)
-  wlan.active(True)    
-  wlan.connect(ssid, password)
-  start = time.ticks_ms()
-  status = wlan.status()
-
+  
   logging.debug(f"  - {statuses[status]}")
   while not wlan.isconnected() and (time.ticks_ms() - start) < (timeout_seconds * 1000):
     new_status = wlan.status()
